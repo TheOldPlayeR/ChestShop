@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace ChestShop
 {
-    public class Class1
+    public class ShopItem
     {
+        public int ItemID;
+        public int Price;
+        public int Stack;
+        public byte Prefix;
     }
 }
