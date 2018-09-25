@@ -53,21 +53,33 @@ namespace ChestShop
             {
                 Directory.CreateDirectory(filePath);
             }
+
             Commands.ChatCommands.Add(new Command("chestshop.manage", new CommandDelegate(this.ChestShopCommand), new string[]
             {
                 "chestshop"
             }));
+
             GetDataHandlers.ChestOpen += new EventHandler<GetDataHandlers.ChestOpenEventArgs>(this.OnChestOpen);
         }
         
         private void OnChestOpen(object sender, GetDataHandlers.ChestOpenEventArgs args)
         {
-            bool flag = !this.isSelectingChest[args.Player.Index];
+            bool flag = !isSelectingChest[args.Player.Index];
             if (!flag)
             {
                 int index = Chest.FindChest(args.X, args.Y);
-                ChestShop chestShop = new ChestShop(new List<ShopItem>(), index, new Point(args.X, args.Y));
+                Chest chest = Main.chest[index];
+                List<ShopItem> chestItems = new List<ShopItem>();
+                foreach (var item in chest.item)
+                {
+                    if (item == null || item.netID == 0) continue;
+
+                    chestItems.Add(new ShopItem(item.netID, 0, item.stack, item.prefix));
+                }
+                ChestShop chestShop = new ChestShop(chestItems, index, new Point(args.X, args.Y));
                 chestShop.SaveTo(Path.Combine(TShock.SavePath, "ChestShop", string.Format("Chest_{0}.json", index)));
+                args.Player.SendInfoMessage("Saved chest to Chest_{0}.", index);
+                isSelectingChest[args.Player.Index] = false;
             }
         }
         
